@@ -46,7 +46,8 @@ module.exports = function (grunt) {
       },
       compass: {
         files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
-        tasks: ['compass:server', 'autoprefixer']
+//         tasks: ['compass:server', 'autoprefixer']
+        tasks: ['compass:server']
       },
       gruntfile: {
         files: ['Gruntfile.js']
@@ -433,7 +434,7 @@ module.exports = function (grunt) {
       'clean:server',
       'wiredep',
       'concurrent:server',
-      'autoprefixer:server',
+//       'autoprefixer:server',
       'connect:livereload',
       'watch'
     ]);
