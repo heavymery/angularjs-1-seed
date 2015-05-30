@@ -110,7 +110,7 @@ module.exports = function (grunt) {
       },
       dist: {
         options: {
-          open: true,
+          open: false,
           base: '<%= yeoman.dist %>'
         }
       }
@@ -269,12 +269,18 @@ module.exports = function (grunt) {
     usemin: {
       html: ['<%= yeoman.dist %>/{,*/}*.html'],
       css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
+      js: ['<%= yeoman.dist %>/scripts/{,*/}*.js'],
       options: {
         assetsDirs: [
           '<%= yeoman.dist %>',
           '<%= yeoman.dist %>/images',
           '<%= yeoman.dist %>/styles'
-        ]
+        ],
+        patterns: {
+          js: [
+            [/(images\/.*\.(png|jpg|gif|svg))/ig, 'Update the JS with the new image filenames']
+          ]
+        }
       }
     },
 
@@ -357,6 +363,28 @@ module.exports = function (grunt) {
       }
     },
 
+    ngtemplates: {
+      options: {
+        htmlmin:  {
+          collapseBooleanAttributes: true,
+          removeAttributeQuotes: false,
+          removeRedundantAttributes: true,
+          useShortDoctype: true,
+          removeEmptyAttributes: false,
+          removeOptionalTags: true,
+          removeComments: true,
+          removeCommentsFromCDATA: true,
+          collapseWhitespace: true
+        },
+        module: 'myAngularGeneratorApp'
+      },
+      files: {
+        cwd: '<%= yeoman.app %>',
+        src: 'views/**/*.html',
+        dest: '.tmp/scripts/templates.js'
+      }
+    },
+    
     // Replace Google CDN references
     cdnify: {
       dist: {
@@ -427,7 +455,8 @@ module.exports = function (grunt) {
 
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
     if (target === 'dist') {
-      return grunt.task.run(['build', 'connect:dist:keepalive']);
+//       return grunt.task.run(['build', 'connect:dist:keepalive']);
+      return grunt.task.run(['connect:dist:keepalive']);
     }
 
     grunt.task.run([
@@ -460,6 +489,7 @@ module.exports = function (grunt) {
     'useminPrepare',
     'concurrent:dist',
     'autoprefixer',
+    'ngtemplates',
     'concat',
     'ngAnnotate',
     'copy:dist',
