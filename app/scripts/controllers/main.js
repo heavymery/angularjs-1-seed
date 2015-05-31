@@ -8,10 +8,11 @@
  * Controller of the myAngularGeneratorApp
  */
 angular.module('myAngularGeneratorApp')
-  .controller('MainCtrl', function ($scope) {
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
+  .controller('MainCtrl', function ($scope, $http) {
+    
+    $http.get('/api/awesome-things')
+      .success(function(data) {
+//         console.debug(data);
+        $scope.awesomeThings = data;
+      });
   });

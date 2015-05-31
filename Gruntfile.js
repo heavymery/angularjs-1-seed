@@ -403,8 +403,8 @@ module.exports = function (grunt) {
           src: [
             '*.{ico,png,txt}',
             '.htaccess',
-            '*.html',
-            'views/{,*/}*.html',
+//             '*.html',
+//             'views/{,*/}*.html',
             'images/{,*/}*.{webp}',
             'styles/fonts/{,*/}*.*'
           ]
@@ -419,6 +419,12 @@ module.exports = function (grunt) {
           src: 'bower_components/bootstrap-sass-official/assets/fonts/bootstrap/*',
           dest: '<%= yeoman.dist %>'
         }]
+      },
+      index: {
+        expand: true,
+        cwd: '.tmp',
+        dest: '<%= yeoman.dist %>',
+        src: '*.html'
       },
       styles: {
         expand: true,
@@ -449,7 +455,30 @@ module.exports = function (grunt) {
         configFile: 'test/karma.conf.js',
         singleRun: true
       }
+    },
+
+    preprocess: {
+      options: {
+        inline: true,
+        context: {
+          DEVELOP: false
+        }
+      },
+      buildHtml: {
+        src: '<%= yeoman.app %>/index.html',
+        dest : '.tmp/index.html'
+      },
+      buildJs: {
+        src: '.tmp/concat/scripts/*.js'
+      },
+      test: {
+        src: [
+          '.tmp/index.html',
+          '.tmp/scripts/app.js'
+        ]
+      }
     }
+
   });
 
 
@@ -473,7 +502,7 @@ module.exports = function (grunt) {
     grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
     grunt.task.run(['serve:' + target]);
   });
-
+  
   grunt.registerTask('test', [
     'clean:server',
     'wiredep',
@@ -491,8 +520,11 @@ module.exports = function (grunt) {
     'autoprefixer',
     'ngtemplates',
     'concat',
+    'preprocess:buildJs',
+    'preprocess:buildHtml',
     'ngAnnotate',
     'copy:dist',
+    'copy:index',
     'cdnify',
     'cssmin',
     'uglify',
