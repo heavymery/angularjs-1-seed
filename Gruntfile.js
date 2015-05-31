@@ -73,38 +73,64 @@ module.exports = function (grunt) {
         hostname: '0.0.0.0',
         livereload: 35729
       },
+      proxies: [
+        {
+          context: '/api',
+          host: '0.0.0.0',
+          port: 3000
+        }
+      ],
       livereload: {
         options: {
           open: false,
-          middleware: function (connect) {
-            return [
-              connect.static('.tmp'),
+          middleware: function (connect, options) {
+            if (!Array.isArray(options.base)) {
+              options.base = [options.base];
+            }
+
+            // Setup the proxy
+            var middlewares = [
+              require('grunt-connect-proxy/lib/utils').proxyRequest,
               connect().use(
                 '/bower_components',
                 connect.static('./bower_components')
               ),
-              connect().use(
-                '/app/styles',
-                connect.static('./app/styles')
-              ),
-              connect.static(appConfig.app)
+              connect.static(appConfig.app),
+              connect.static('.tmp')
             ];
+
+            // Make directory browse-able.
+            var directory = options.directory || options.base[options.base.length - 1];
+            middlewares.push(connect.directory(directory));
+
+            return middlewares;
           }
         }
       },
       test: {
         options: {
           port: 9001,
-          middleware: function (connect) {
-            return [
-              connect.static('.tmp'),
-              connect.static('test'),
+          middleware: function (connect, options) {
+            if (!Array.isArray(options.base)) {
+              options.base = [options.base];
+            }
+
+            // Setup the proxy
+            var middlewares = [
+              require('grunt-connect-proxy/lib/utils').proxyRequest,
               connect().use(
                 '/bower_components',
                 connect.static('./bower_components')
               ),
-              connect.static(appConfig.app)
+              connect.static('test'),
+              connect.static('.tmp')
             ];
+
+            // Make directory browse-able.
+            var directory = options.directory || options.base[options.base.length - 1];
+            middlewares.push(connect.directory(directory));
+
+            return middlewares;
           }
         }
       },
@@ -185,7 +211,7 @@ module.exports = function (grunt) {
       },
       test: {
         devDependencies: true,
-        src: '<%= karma.unit.configFile %>',
+        src: '<%= karma.local.configFile %>',
         ignorePath:  /\.\.\//,
         fileTypes:{
           js: {
@@ -431,6 +457,12 @@ module.exports = function (grunt) {
         cwd: '<%= yeoman.app %>/styles',
         dest: '.tmp/styles/',
         src: '{,*/}*.css'
+      },
+      test: {
+        expand: true,
+        cwd: '<%= yeoman.app %>',
+        dest: '.tmp',
+        src: '**/*'
       }
     },
 
@@ -440,7 +472,8 @@ module.exports = function (grunt) {
         'compass:server'
       ],
       test: [
-        'compass'
+        'compass',
+        'copy:test'
       ],
       dist: [
         'compass:dist',
@@ -451,9 +484,33 @@ module.exports = function (grunt) {
 
     // Test settings
     karma: {
-      unit: {
+      local: {
         configFile: 'test/karma.conf.js',
         singleRun: true
+      }
+    },
+
+    protractor_webdriver: {
+      start: {
+        options: {
+          path: 'node_modules/protractor/bin/',
+          command: 'webdriver-manager start'
+        }
+      }
+    },
+
+    protractor: {
+      options: {
+        keepAlive: false, // If false, the grunt process stops when the test fails.
+        noColor: false, // If true, protractor will not use colors in its output.
+        args: {
+          // Arguments passed to the command
+        }
+      },
+      local: {
+        options: {
+          configFile: 'test/e2e/protractor.conf.js'
+        }
       }
     },
 
@@ -477,10 +534,36 @@ module.exports = function (grunt) {
           '.tmp/scripts/app.js'
         ]
       }
+    },
+
+    shell: {
+      webdriverUpdate: {
+        command: 'node_modules/protractor/bin/webdriver-manager update --standalone',
+        options: {
+          async: false
+        }
+      },
+      launchApiServer: {
+        command: '',
+        options: {
+          async: true,
+          execOptions: {
+            cwd: '../'
+          }
+        }
+      },
+      initApiData: {
+        command: '',
+        options: {
+          async: false,
+          execOptions: {
+            cwd: '../'
+          }
+        }
+      }
     }
 
   });
-
 
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
     if (target === 'dist') {
@@ -493,6 +576,7 @@ module.exports = function (grunt) {
       'wiredep',
       'concurrent:server',
 //       'autoprefixer:server',
+      'configureProxies:livereload',
       'connect:livereload',
       'watch'
     ]);
@@ -503,14 +587,32 @@ module.exports = function (grunt) {
     grunt.task.run(['serve:' + target]);
   });
   
-  grunt.registerTask('test', [
-    'clean:server',
-    'wiredep',
-    'concurrent:test',
-    'autoprefixer',
-    'connect:test',
-    'karma'
-  ]);
+  grunt.registerTask('test', 'Unit & E2E test', function (target) {
+    var tasks = [
+      'clean:server',
+      'wiredep',
+      'concurrent:test',
+      'autoprefixer',
+      'configureProxies:test',
+      'connect:test',
+      'karma'
+    ];
+
+    if(grunt.option('e2e')) {
+      tasks.push('shell:webdriverUpdate');
+      tasks.push('protractor_webdriver');
+
+//       if(!grunt.option('mock')) {
+//         tasks.push('preprocess:test');
+//         tasks.push('shell:initApiData');
+//         tasks.push('shell:launchApiServer');
+//       }
+
+      tasks.push('protractor');
+    }
+
+    grunt.task.run(tasks);
+  });
 
   grunt.registerTask('build', [
     'clean:dist',
