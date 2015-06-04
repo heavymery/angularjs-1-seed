@@ -137,7 +137,23 @@ module.exports = function (grunt) {
       dist: {
         options: {
           open: false,
-          base: '<%= yeoman.dist %>'
+          middleware: function (connect, options) {
+            if (!Array.isArray(options.base)) {
+              options.base = [options.base];
+            }
+
+            // Setup the proxy
+            var middlewares = [
+              require('grunt-connect-proxy/lib/utils').proxyRequest,
+              connect.static(appConfig.dist),
+            ];
+
+            // Make directory browse-able.
+            var directory = options.directory || options.base[options.base.length - 1];
+            middlewares.push(connect.directory(directory));
+
+            return middlewares;
+          }
         }
       }
     },
@@ -487,10 +503,14 @@ module.exports = function (grunt) {
       local: {
         configFile: 'test/karma.conf.js',
         singleRun: true
+      },
+      browserstack: {
+        configFile: 'test/karma-browserstack.conf.js',
+        singleRun: true
       }
     },
 
-    protractor_webdriver: {
+    'protractor_webdriver': {
       start: {
         options: {
           path: 'node_modules/protractor/bin/',
@@ -510,6 +530,11 @@ module.exports = function (grunt) {
       local: {
         options: {
           configFile: 'test/e2e/protractor.conf.js'
+        }
+      },
+      browserstack: {
+        options: {
+          configFile: 'test/e2e/protractor-browserstack.conf.js'
         }
       }
     },
@@ -568,7 +593,10 @@ module.exports = function (grunt) {
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
     if (target === 'dist') {
 //       return grunt.task.run(['build', 'connect:dist:keepalive']);
-      return grunt.task.run(['connect:dist:keepalive']);
+      return grunt.task.run([
+        'configureProxies:dist',
+        'connect:dist:keepalive'
+      ]);
     }
 
     grunt.task.run([
@@ -587,7 +615,7 @@ module.exports = function (grunt) {
     grunt.task.run(['serve:' + target]);
   });
   
-  grunt.registerTask('test', 'Unit & E2E test', function (target) {
+  grunt.registerTask('test', 'Unit & E2E test', function () {
     var tasks = [
       'clean:server',
       'wiredep',
@@ -595,7 +623,7 @@ module.exports = function (grunt) {
       'autoprefixer',
       'configureProxies:test',
       'connect:test',
-      'karma'
+      'karma:local'
     ];
 
     if(grunt.option('e2e')) {
@@ -608,7 +636,83 @@ module.exports = function (grunt) {
          tasks.push('shell:launchApiServer');
        }
 
-      tasks.push('protractor');
+      tasks.push('protractor:local');
+    }
+
+    grunt.task.run(tasks);
+  });
+
+  var BrowserStackTunnel = require('browserstacktunnel-wrapper');
+  var browserStackTunnel = new BrowserStackTunnel({
+    // BrowserStack Access Key
+    key: process.env.BROWSERSTACK_ACCESS_KEY,
+    hosts: [{
+      name: 'localhost',
+      port: 9001,
+      sslFlag: 0
+    }],
+    v: true,
+    force: true
+  });
+
+  grunt.registerTask('browserstacktunnel', 'Start/Stop BrowserStackTunnel', function(target) {
+    var done = this.async();
+
+    switch(target) {
+      case 'stop':
+        browserStackTunnel.stop(function(error) {
+          if (error) {
+            grunt.log.error('Could not stop tunnel');
+            grunt.log.debug(error);
+            done(false);
+          } else {
+            grunt.log.ok('Stop tunnel successfully');
+            done();
+          }
+        });
+        break;
+
+      case 'start':
+        browserStackTunnel.start(function(error) {
+          if (error) {
+            grunt.log.error('Could not start tunnel');
+            grunt.log.debug(error);
+            done(false);
+          } else {
+            grunt.log.ok('Start tunnel successfully');
+
+            setTimeout(function() {
+              done();
+            }, 1000);
+          }
+        });
+        break;
+    }
+  });
+
+
+  grunt.registerTask('test:browserstack', 'Unit & E2E test for BrowserStack', function () {
+    var tasks = [
+      'clean:server',
+      'wiredep',
+      'concurrent:test',
+      'autoprefixer',
+      'configureProxies:test',
+      'connect:test',
+      'karma:browserstack'
+    ];
+
+    if(grunt.option('e2e')) {
+      tasks.push('browserstacktunnel:start');
+
+      if(!grunt.option('mock')) {
+        tasks.push('preprocess:test');
+        tasks.push('shell:initApiData');
+        tasks.push('shell:launchApiServer');
+      }
+
+      tasks.push('protractor:browserstack');
+      tasks.push('browserstacktunnel:stop');
     }
 
     grunt.task.run(tasks);

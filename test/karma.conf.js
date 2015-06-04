@@ -34,6 +34,7 @@ module.exports = function(config) {
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
       "app/scripts/**/*.js",
+      "app/views/**/*.html",
       "test/mock/**/*.js",
       "test/spec/**/*.js"
     ],
@@ -60,8 +61,21 @@ module.exports = function(config) {
     // Which plugins to enable
     plugins: [
       "karma-phantomjs-launcher",
-      "karma-jasmine"
+      "karma-jasmine",
+      'karma-coverage',
+      'karma-spec-reporter',
+      'karma-ng-html2js-preprocessor'
     ],
+
+    preprocessors: {
+      'app/views/**/*.html': ['ng-html2js'],
+      'app/scripts/**/*.js': 'coverage'
+    },
+
+    ngHtml2JsPreprocessor: {
+      stripPrefix: 'app/',
+      moduleName: 'myAngularGeneratorApp'
+    },
 
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
@@ -79,5 +93,16 @@ module.exports = function(config) {
     // },
     // URL root prevent conflicts with the site root
     // urlRoot: '_karma_'
+
+    coverageReporter: {
+      type: 'html',
+      dir : process.env.CIRCLE_ARTIFACTS ?
+              process.env.CIRCLE_ARTIFACTS + '/coverage' :
+              'test/coverage'
+    },
+    reporters: [
+      'spec',
+      'coverage'
+    ]
   });
 };
