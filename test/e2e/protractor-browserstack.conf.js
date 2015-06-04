@@ -24,7 +24,7 @@ exports.config = {
 
     // Mac FireFox / Chrome (FireFox is not available for protractor yet ?)
     // {
-    //   'name': 'My Angular Generator',
+    //   'name': 'My Angular',
     //   'browserstack.user': browserstackUsername,
     //   'browserstack.key': browserstackAccessKey,
     //   'browserstack.local': true,
@@ -34,7 +34,7 @@ exports.config = {
     //   // 'os_version' : 'Yosemite'
     // },
     {
-      'name': 'My Angular Generator',
+      'name': 'My Angular',
       'browserstack.user': browserstackUsername,
       'browserstack.key': browserstackAccessKey,
       'browserstack.local': true,
@@ -47,7 +47,7 @@ exports.config = {
 
     // // Mac Safari 8/7/6.1
     // {
-    //   'name': 'My Angular Generator',
+    //   'name': 'My Angular',
     //   'browserstack.user': browserstackUsername,
     //   'browserstack.key': browserstackAccessKey,
     //   'browserstack.local': true,
@@ -57,7 +57,7 @@ exports.config = {
     //   'os_version' : 'Yosemite'
     // },
     // {
-    //   'name': 'My Angular Generator',
+    //   'name': 'My Angular',
     //   'browserstack.user': browserstackUsername,
     //   'browserstack.key': browserstackAccessKey,
     //   'browserstack.local': true,
@@ -67,7 +67,7 @@ exports.config = {
     //   'os_version' : 'Mavericks'
     // },
     // {
-    //   'name': 'My Angular Generator',
+    //   'name': 'My Angular',
     //   'browserstack.user': browserstackUsername,
     //   'browserstack.key': browserstackAccessKey,
     //   'browserstack.local': true,
@@ -79,7 +79,7 @@ exports.config = {
 
     // // Windows FireFox / Chrome (FireFox is not available for protractor yet ?)
     // // {
-    // //   'name': 'My Angular Generator',
+    // //   'name': 'My Angular',
     // //   'browserstack.user': browserstackUsername,
     // //   'browserstack.key': browserstackAccessKey,
     // //   'browserstack.local': true,
@@ -89,7 +89,7 @@ exports.config = {
     // //   // 'os_version' : '8.1'
     // // },
     // {
-    //   'name': 'My Angular Generator',
+    //   'name': 'My Angular',
     //   'browserstack.user': browserstackUsername,
     //   'browserstack.key': browserstackAccessKey,
     //   'browserstack.local': true,
@@ -101,7 +101,7 @@ exports.config = {
 
     // // Windows IE11/10
     // {
-    //   'name': 'My Angular Generator',
+    //   'name': 'My Angular',
     //   'browserstack.user': browserstackUsername,
     //   'browserstack.key': browserstackAccessKey,
     //   'browserstack.local': true,
@@ -111,7 +111,7 @@ exports.config = {
     //   'os_version' : '8.1'
     // },
     // {
-    //   'name': 'My Angular Generator',
+    //   'name': 'My Angular',
     //   'browserstack.user': browserstackUsername,
     //   'browserstack.key': browserstackAccessKey,
     //   'browserstack.local': true,
@@ -121,7 +121,7 @@ exports.config = {
     //   'os_version' : '8'
     // },
     // {
-    //   'name': 'My Angular Generator',
+    //   'name': 'My Angular',
     //   'browserstack.user': browserstackUsername,
     //   'browserstack.key': browserstackAccessKey,
     //   'browserstack.local': true,

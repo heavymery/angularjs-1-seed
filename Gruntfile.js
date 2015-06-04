@@ -418,7 +418,7 @@ module.exports = function (grunt) {
           removeCommentsFromCDATA: true,
           collapseWhitespace: true
         },
-        module: 'myAngularGeneratorApp'
+        module: 'myAngular'
       },
       files: {
         cwd: '<%= yeoman.app %>',

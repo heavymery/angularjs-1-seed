@@ -2,12 +2,12 @@
 
 /**
  * @ngdoc function
- * @name myAngularGeneratorApp.controller:ContactCtrl
+ * @name myAngular.controller:ContactCtrl
  * @description
  * # ContactCtrl
- * Controller of the myAngularGeneratorApp
+ * Controller of the myAngular
  */
-angular.module('myAngularGeneratorApp')
+angular.module('myAngular')
   .controller('ContactCtrl', function ($scope) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',

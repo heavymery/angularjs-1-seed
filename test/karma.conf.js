@@ -74,7 +74,7 @@ module.exports = function(config) {
 
     ngHtml2JsPreprocessor: {
       stripPrefix: 'app/',
-      moduleName: 'myAngularGeneratorApp'
+      moduleName: 'myAngular'
     },
 
     // Continuous Integration mode

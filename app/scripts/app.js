@@ -2,14 +2,14 @@
 
 /**
  * @ngdoc overview
- * @name myAngularGeneratorApp
+ * @name myAngular
  * @description
- * # myAngularGeneratorApp
+ * # myAngular
  *
  * Main module of the application.
  */
 angular
-  .module('myAngularGeneratorApp', [
+  .module('myAngular', [
     'ngAnimate',
     'ngCookies',
     'ngResource',

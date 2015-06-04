@@ -45,7 +45,7 @@ module.exports = function(config) {
     // BrowserStack Access Setting
     browserStack: {
       build: 'Karma Unit Test',
-      project: 'My Angular Generator',
+      project: 'My Angular',
       username: process.env.BROWSERSTACK_USERNAME,
       accessKey: process.env.BROWSERSTACK_ACCESS_KEY
     },
@@ -170,7 +170,7 @@ module.exports = function(config) {
 
     ngHtml2JsPreprocessor: {
       stripPrefix: 'app/',
-      moduleName: 'myAngularGeneratorApp'
+      moduleName: 'myAngular'
     },
 
     // Continuous Integration mode

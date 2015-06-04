@@ -2,12 +2,12 @@
 
 /**
  * @ngdoc function
- * @name myAngularGeneratorApp.controller:MainCtrl
+ * @name myAngular.controller:MainCtrl
  * @description
  * # MainCtrl
- * Controller of the myAngularGeneratorApp
+ * Controller of the myAngular
  */
-angular.module('myAngularGeneratorApp')
+angular.module('myAngular')
   .controller('MainCtrl', function ($scope, $http) {
     
     $http.get('/api/awesome-things')
