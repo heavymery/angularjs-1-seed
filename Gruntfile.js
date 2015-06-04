@@ -544,11 +544,11 @@ module.exports = function (grunt) {
         }
       },
       launchApiServer: {
-        command: '',
+        command: 'node test/e2e/awesome-server.js',
         options: {
           async: true,
           execOptions: {
-            cwd: '../'
+            cwd: './'
           }
         }
       },
@@ -557,7 +557,7 @@ module.exports = function (grunt) {
         options: {
           async: false,
           execOptions: {
-            cwd: '../'
+            cwd: './'
           }
         }
       }
@@ -602,11 +602,11 @@ module.exports = function (grunt) {
       tasks.push('shell:webdriverUpdate');
       tasks.push('protractor_webdriver');
 
-//       if(!grunt.option('mock')) {
-//         tasks.push('preprocess:test');
-//         tasks.push('shell:initApiData');
-//         tasks.push('shell:launchApiServer');
-//       }
+       if(!grunt.option('mock')) {
+         tasks.push('preprocess:test');
+         tasks.push('shell:initApiData');
+         tasks.push('shell:launchApiServer');
+       }
 
       tasks.push('protractor');
     }
