@@ -17,27 +17,56 @@ angular
     'ngSanitize',
     'ngTouch',
 
+    'ui.router', 
+
     // @if DEVELOP
     'ngMockE2E'
     // @endif
   ])
-  .config(function ($routeProvider) {
-    $routeProvider
-      .when('/', {
-        templateUrl: 'views/main.html',
+//   .config(function ($routeProvider) {
+//     $routeProvider
+//       .when('/', {
+//         templateUrl: 'views/main.html',
+//         controller: 'MainCtrl'
+//       })
+//       .when('/about', {
+//         templateUrl: 'views/about.html',
+//         controller: 'AboutCtrl'
+//       })
+//       .when('/contact', {
+//         templateUrl: 'views/contact.html',
+//         controller: 'ContactCtrl'
+//       })
+//       .otherwise({
+//         redirectTo: '/'
+//       });
+//   })
+  .config(function($stateProvider, $urlRouterProvider) {
+    //
+    // For any unmatched url, redirect to /state1
+    $urlRouterProvider.otherwise("/");
+    //
+    // Now set up the states
+    $stateProvider
+      .state('home', {
+        url: "/",
+        templateUrl: "views/main.html",
         controller: 'MainCtrl'
       })
-      .when('/about', {
-        templateUrl: 'views/about.html',
+      .state('about', {
+        url: "/about",
+        templateUrl: "views/about.html",
         controller: 'AboutCtrl'
       })
-      .when('/contact', {
+      .state('contact', {
+        url: "/contact",
         templateUrl: 'views/contact.html',
         controller: 'ContactCtrl'
-      })
-      .otherwise({
-        redirectTo: '/'
       });
+  })
+  .run(function ($rootScope, $state, $stateParams) {
+    $rootScope.$state = $state;
+    $rootScope.$stateParams = $stateParams;
   })
   // @if DEVELOP
   .run(function($httpBackend) {
