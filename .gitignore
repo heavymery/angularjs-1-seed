@@ -2,6 +2,7 @@ node_modules
 .tmp
 .sass-cache
 bower_components
+!dist/bower_components
 test/coverage
 app/styles/*.css
 app/styles/*.css.map
