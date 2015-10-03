@@ -17,7 +17,7 @@ angular
     'ngSanitize',
     'ngTouch',
 
-    'ui.router', 
+    'ui.router',
 
     // @if DEVELOP
     'ngMockE2E'
@@ -44,22 +44,22 @@ angular
   .config(function($stateProvider, $urlRouterProvider) {
     //
     // For any unmatched url, redirect to /state1
-    $urlRouterProvider.otherwise("/");
+    $urlRouterProvider.otherwise('/');
     //
     // Now set up the states
     $stateProvider
       .state('home', {
-        url: "/",
-        templateUrl: "views/main.html",
+        url: '/',
+        templateUrl: 'views/main.html',
         controller: 'MainCtrl'
       })
       .state('about', {
-        url: "/about",
-        templateUrl: "views/about.html",
+        url: '/about',
+        templateUrl: 'views/about.html',
         controller: 'AboutCtrl'
       })
       .state('contact', {
-        url: "/contact",
+        url: '/contact',
         templateUrl: 'views/contact.html',
         controller: 'ContactCtrl'
       });
@@ -77,7 +77,8 @@ angular
         return [200, [
           { title: 'HTML5 Boilerplate', description: 'HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.' },
           { title: 'AngularJS', description: 'AngularJS is a toolset for building the framework most suited to your application development.' },
-          { title: 'Karma', description: 'Spectacular Test Runner for JavaScript.' }
+          { title: 'Karma', description: 'Spectacular Test Runner for JavaScript.' },
+          { title: 'Protractor', description: 'E2E Test Runner for AngularJS.' }
         ], {}];
       });
   })
