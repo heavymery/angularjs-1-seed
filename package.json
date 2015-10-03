@@ -1,10 +1,16 @@
 {
-  "name": "myangulargenerator",
+  "name": "my-angular-generator",
+  "description": "Additional scaffolding for generator-angular based app.",
   "version": "0.0.0",
+  "license": "UNLICENSED",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:heavymery/my-angular.git"
+  },
   "dependencies": {
     "express": "^4.12.4"
   },
-  "repository": {},
   "devDependencies": {
     "browserstacktunnel-wrapper": "^1.4.0",
     "grunt": "^0.4.5",
@@ -13,7 +19,6 @@
     "grunt-concurrent": "^1.0.0",
     "grunt-connect-proxy": "^0.2.0",
     "grunt-contrib-clean": "^0.6.0",
-    "grunt-contrib-compass": "^1.0.0",
     "grunt-contrib-concat": "^0.5.0",
     "grunt-contrib-connect": "^0.10.1",
     "grunt-contrib-copy": "^0.7.0",
@@ -43,6 +48,7 @@
     "karma-phantomjs-launcher": "*",
     "karma-spec-reporter": "0.0.19",
     "load-grunt-tasks": "^3.1.0",
+    "node-sass": "^3.3.3",
     "protractor": "^2.1.0",
     "time-grunt": "^1.0.0",
     "try-thread-sleep": "^1.0.0"
