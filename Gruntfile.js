@@ -9,11 +9,25 @@
 
 module.exports = function (grunt) {
 
+  //------------------------------------------------------------------------------
+  //
+  //  Modules
+  //
+  //------------------------------------------------------------------------------
+
+  require('dotenv').load();
+
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
 
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);
+
+  //------------------------------------------------------------------------------
+  //
+  //  Configuration
+  //
+  //------------------------------------------------------------------------------
 
   // Configurable paths for the application
   var appConfig = {
@@ -22,11 +36,21 @@ module.exports = function (grunt) {
     dist: 'dist'
   };
 
+  //------------------------------------------------------------------------------
+  //
+  //  Initialize
+  //
+  //------------------------------------------------------------------------------
+
   // Define the configuration for all the tasks
   grunt.initConfig({
 
     // Project settings
     yeoman: appConfig,
+
+    //--------------------------------------
+    //  Watch
+    //--------------------------------------
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
@@ -34,72 +58,79 @@ module.exports = function (grunt) {
         files: ['bower.json'],
         tasks: ['wiredep']
       },
+
       js: {
         files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
-        // FIXME: Actually not newer
-        // tasks: ['newer:jshint:all'],
-        tasks: ['jshint:all'],
+        tasks: ['newer:jshint:all'],
         options: {
           spawn: false,
           interrupt: true,
           debounceDelay: 0,
-          // livereload: '<%= connect.options.livereload %>'
+          event: 'changed',
+          livereload: '<%= connect.serve.options.livereload %>'
         }
       },
+
+      // TODO: Remove vendor prefix mixins from sass before using this.
+      // css: {
+      //   files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
+      //   tasks: ['newer:autoprefixer:app'],
+      //   options: {
+      //     spawn: false,
+      //     interrupt: true,
+      //     debounceDelay: 0,
+      //     event: 'changed',
+      //     livereload: '<%= connect.serve.options.livereload %>'
+      //   }
+      // },
+
       jsTest: {
         files: ['test/spec/{,*/}*.js'],
         tasks: ['newer:jshint:test', 'karma']
       },
+
       gruntfile: {
         files: ['Gruntfile.js']
       },
+
       livereload: {
         options: {
-          livereload: '<%= connect.options.livereload %>'
+          livereload: '<%= connect.serve.options.livereload %>'
         },
         files: [
           '<%= yeoman.app %>/{,*/}*.html',
           '<%= yeoman.app %>/views/{,*/,*/*/}*.html',
           '<%= yeoman.app %>/scripts/{,*/}*.js',
-          // '.tmp/styles/{,*/}*.css',
-          '<%= yeoman.app %>/styles/{,*/}*.css',
+          // '.tmp/styles/{,*/}*.css', // TODO: Restore after `watch:css` enabled
+          '<%= yeoman.app %>/styles/{,*/}*.css', // TODO: Remove after `watch:css` enabled
           '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
       }
     },
 
+    //--------------------------------------
+    //  Connect
+    //--------------------------------------
+
     // The actual grunt server settings
     connect: {
-      options: {
-        port: 9000,
-        // Change this to '0.0.0.0' to access the server from outside.
-        hostname: '0.0.0.0',
-        livereload: 35729
-      },
-      proxies: [
-        {
-          context: '/api',
-          host: '0.0.0.0',
-          port: 3000
-        }
-      ],
-      livereload: {
+      serve: {
         options: {
-          open: false,
+          hostname: '0.0.0.0',
+          port: 9000,
+          livereload: 35729,
           middleware: function (connect, options) {
             if (!Array.isArray(options.base)) {
               options.base = [options.base];
             }
 
-            // Setup the proxy
             var middlewares = [
-              require('grunt-connect-proxy/lib/utils').proxyRequest,
               connect().use(
                 '/bower_components',
                 connect.static('./bower_components')
               ),
-              connect.static(appConfig.app),
-              connect.static('.tmp')
+              connect.static('.tmp'),
+              connect.static(appConfig.app)
             ];
 
             // Make directory browse-able.
@@ -112,21 +143,20 @@ module.exports = function (grunt) {
       },
       test: {
         options: {
+          hostname: '0.0.0.0',
           port: 9001,
           middleware: function (connect, options) {
             if (!Array.isArray(options.base)) {
               options.base = [options.base];
             }
 
-            // Setup the proxy
             var middlewares = [
-              require('grunt-connect-proxy/lib/utils').proxyRequest,
               connect().use(
                 '/bower_components',
                 connect.static('./bower_components')
               ),
-              connect.static('test'),
-              connect.static('.tmp')
+              connect.static('.tmp'),
+              connect.static('test')
             ];
 
             // Make directory browse-able.
@@ -139,16 +169,15 @@ module.exports = function (grunt) {
       },
       dist: {
         options: {
-          open: false,
+          hostname: '0.0.0.0',
+          port: 9002,
           middleware: function (connect, options) {
             if (!Array.isArray(options.base)) {
               options.base = [options.base];
             }
 
-            // Setup the proxy
             var middlewares = [
-              require('grunt-connect-proxy/lib/utils').proxyRequest,
-              connect.static(appConfig.dist),
+              connect.static(appConfig.dist)
             ];
 
             // Make directory browse-able.
@@ -160,6 +189,10 @@ module.exports = function (grunt) {
         }
       }
     },
+
+    //--------------------------------------
+    //  Lint
+    //--------------------------------------
 
     // Make sure code styles are up to par and there are no obvious mistakes
     jshint: {
@@ -181,9 +214,15 @@ module.exports = function (grunt) {
       }
     },
 
+    //--------------------------------------
+    //  Clean
+    //--------------------------------------
+
     // Empties folders to start fresh
     clean: {
-      dist: {
+      serve: '.tmp',
+
+      build: {
         files: [{
           dot: true,
           src: [
@@ -192,14 +231,25 @@ module.exports = function (grunt) {
             '!<%= yeoman.dist %>/.git{,*/}*'
           ]
         }]
-      },
-      server: '.tmp'
+      }
     },
+
+    //--------------------------------------
+    //  Post CSS
+    //--------------------------------------
 
     // Add vendor prefixed styles
     autoprefixer: {
       options: {
-        browsers: ['last 1 version']
+        browsers: [
+          // 'last 1 version'
+          'last 2 Chrome versions', // Desktop / mobile (Chrome for iOS/Android)
+          'last 2 Firefox versions',
+          'last 2 Safari versions',
+          'Explorer >= 10', // IE
+          'iOS >= 8', // Mobile Safari
+          'Android >= 4' // Android Browser
+        ]
       },
       server: {
         options: {
@@ -225,6 +275,10 @@ module.exports = function (grunt) {
         }]
       }
     },
+
+    //--------------------------------------
+    //  Wire Bower
+    //--------------------------------------
 
     // Automatically inject Bower components into the app
     wiredep: {
@@ -255,34 +309,9 @@ module.exports = function (grunt) {
       }
     },
 
-    // // Compiles Sass to CSS and generates necessary files if requested
-    // compass: {
-    //   options: {
-    //     sassDir: '<%= yeoman.app %>/styles',
-    //     cssDir: '.tmp/styles',
-    //     generatedImagesDir: '.tmp/images/generated',
-    //     imagesDir: '<%= yeoman.app %>/images',
-    //     javascriptsDir: '<%= yeoman.app %>/scripts',
-    //     fontsDir: '<%= yeoman.app %>/styles/fonts',
-    //     importPath: './bower_components',
-    //     httpImagesPath: '/images',
-    //     httpGeneratedImagesPath: '/images/generated',
-    //     httpFontsPath: '/styles/fonts',
-    //     relativeAssets: false,
-    //     assetCacheBuster: false,
-    //     raw: 'Sass::Script::Number.precision = 10\n'
-    //   },
-    //   dist: {
-    //     options: {
-    //       generatedImagesDir: '<%= yeoman.dist %>/images/generated'
-    //     }
-    //   },
-    //   server: {
-    //     options: {
-    //       sourcemap: true
-    //     }
-    //   }
-    // },
+    //--------------------------------------
+    //  File revision
+    //--------------------------------------
 
     // Renames files for browser caching purposes
     filerev: {
@@ -296,18 +325,29 @@ module.exports = function (grunt) {
       }
     },
 
+    //--------------------------------------
+    //  Minify
+    //--------------------------------------
+
     // Reads HTML for usemin blocks to enable smart builds that automatically
     // concat, minify and revision files. Creates configurations in memory so
     // additional tasks can operate on them
     useminPrepare: {
       html: '<%= yeoman.app %>/index.html',
+
       options: {
         dest: '<%= yeoman.dist %>',
         flow: {
           html: {
             steps: {
-              js: ['concat', 'uglifyjs'],
-              css: ['concat', 'cssmin']
+              js: [
+                'concat',
+                'uglifyjs'
+              ],
+              css: [
+                'concat',
+                'cssmin'
+              ]
             },
             post: {}
           }
@@ -408,6 +448,10 @@ module.exports = function (grunt) {
       }
     },
 
+    //--------------------------------------
+    //  NG preprocess
+    //--------------------------------------
+
     // ng-annotate tries to make the code safe for minification automatically
     // by using the Angular long form for dependency injection.
     ngAnnotate: {
@@ -443,12 +487,20 @@ module.exports = function (grunt) {
       }
     },
 
+    //--------------------------------------
+    //  CDN
+    //--------------------------------------
+
     // Replace Google CDN references
     cdnify: {
       dist: {
         html: ['<%= yeoman.dist %>/*.html']
       }
     },
+
+    //--------------------------------------
+    //  Copy
+    //--------------------------------------
 
     // Copies remaining files to places other tasks can use
     copy: {
@@ -498,6 +550,10 @@ module.exports = function (grunt) {
       }
     },
 
+    //--------------------------------------
+    //  Concurrent
+    //--------------------------------------
+
     // Run some tasks in parallel to speed up the build process
     concurrent: {
       server: [
@@ -511,6 +567,10 @@ module.exports = function (grunt) {
         'svgmin'
       ]
     },
+
+    //--------------------------------------
+    //  Unit, E2E Test
+    //--------------------------------------
 
     // Test settings
     karma: {
@@ -553,6 +613,10 @@ module.exports = function (grunt) {
       }
     },
 
+    //--------------------------------------
+    //  Preprocess
+    //--------------------------------------
+
     preprocess: {
       options: {
         inline: true,
@@ -576,6 +640,10 @@ module.exports = function (grunt) {
         ]
       }
     },
+
+    //--------------------------------------
+    //  Commands (Sass compile/watch, etc.)
+    //--------------------------------------
 
     shell: {
       webdriverUpdate: {
@@ -615,6 +683,16 @@ module.exports = function (grunt) {
 
   });
 
+  //------------------------------------------------------------------------------
+  //
+  //  Tasks
+  //
+  //------------------------------------------------------------------------------
+
+  //--------------------------------------
+  //  Serve
+  //--------------------------------------
+
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
     if (target === 'dist') {
       // return grunt.task.run(['build', 'connect:dist:keepalive']);
@@ -625,25 +703,24 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
-      'clean:server',
+      'clean:serve',
       'wiredep',
       'concurrent:server',
       // 'autoprefixer:server',
       'configureProxies:livereload',
-      'connect:livereload',
+      'connect:serve',
       'shell:sassWatch',
       'watch'
     ]);
   });
 
-  grunt.registerTask('server', 'DEPRECATED TASK. Use the "serve" task instead', function (target) {
-    grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-    grunt.task.run(['serve:' + target]);
-  });
+  //--------------------------------------
+  //  Test
+  //--------------------------------------
 
   grunt.registerTask('test', 'Unit & E2E test', function () {
     var tasks = [
-      'clean:server',
+      'clean:serve',
       'wiredep',
       'concurrent:test',
       'autoprefixer:server',
@@ -668,81 +745,9 @@ module.exports = function (grunt) {
     grunt.task.run(tasks);
   });
 
-  var BrowserStackTunnel = require('browserstacktunnel-wrapper');
-  var browserStackTunnel = new BrowserStackTunnel({
-    // BrowserStack Access Key
-    key: process.env.BROWSERSTACK_ACCESS_KEY,
-    hosts: [{
-      name: 'localhost',
-      port: 9001,
-      sslFlag: 0
-    }],
-    v: true,
-    force: true
-  });
-
-  grunt.registerTask('browserstacktunnel', 'Start/Stop BrowserStackTunnel', function(target) {
-    var done = this.async();
-
-    switch(target) {
-      case 'stop':
-        browserStackTunnel.stop(function(error) {
-          if (error) {
-            grunt.log.error('Could not stop tunnel');
-            grunt.log.debug(error);
-            done(false);
-          } else {
-            grunt.log.ok('Stop tunnel successfully');
-            done();
-          }
-        });
-        break;
-
-      case 'start':
-        browserStackTunnel.start(function(error) {
-          if (error) {
-            grunt.log.error('Could not start tunnel');
-            grunt.log.debug(error);
-            done(false);
-          } else {
-            grunt.log.ok('Start tunnel successfully');
-
-            setTimeout(function() {
-              done();
-            }, 1000);
-          }
-        });
-        break;
-    }
-  });
-
-
-  grunt.registerTask('test:browserstack', 'Unit & E2E test for BrowserStack', function () {
-    var tasks = [
-      'clean:server',
-      'wiredep',
-      'concurrent:test',
-      'autoprefixer:server',
-      'configureProxies:test',
-      'connect:test',
-      'karma:browserstack'
-    ];
-
-    if(grunt.option('e2e')) {
-      tasks.push('browserstacktunnel:start');
-
-      if(!grunt.option('mock')) {
-        tasks.push('preprocess:test');
-        tasks.push('shell:initApiData');
-        tasks.push('shell:launchApiServer');
-      }
-
-      tasks.push('protractor:browserstack');
-      tasks.push('browserstacktunnel:stop');
-    }
-
-    grunt.task.run(tasks);
-  });
+  //--------------------------------------
+  //  Build
+  //--------------------------------------
 
   grunt.registerTask('build', [
     'clean:dist',
@@ -766,9 +771,14 @@ module.exports = function (grunt) {
     'htmlmin'
   ]);
 
+  //--------------------------------------
+  //  Default (Test -> Build)
+  //--------------------------------------
+
   grunt.registerTask('default', [
     'newer:jshint',
     'test',
     'build'
   ]);
+
 };

@@ -1,4 +1,8 @@
-# My Angular
+# AngularJS 1 Seed
+
+Seed project for AngularJS 1.
+
+---
 
 This project is generated with [yo angular generator](https://github.com/yeoman/generator-angular)
 version 0.11.1.
