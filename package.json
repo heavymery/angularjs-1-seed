@@ -6,10 +6,27 @@
   "private": true,
   "scripts": {
     "postinstall": "npm install -g grunt-cli bower && bower install",
-    "grunt": "grunt",
-    "start": "grunt serve",
+
+    "start": "npm run serve",
+
+    "serve:dev": "NODE_ENV=development grunt serve",
+    "serve:stg": "NODE_ENV=staging grunt serve",
+    "serve:prod": "NODE_ENV=production grunt serve",
+
     "test": "grunt test",
-    "build": "grunt build"
+    "test:e2e": "grunt test --e2e=true",
+    "test:mock-e2e": "grunt test --e2e=true --mock=true",
+
+    "build:dev": "NODE_ENV=development grunt build",
+    "build:stg": "NODE_ENV=staging grunt build",
+    "build:prod": "NODE_ENV=production grunt build",
+
+    "deploy:dev": "NODE_ENV=development",
+    "deploy:stg": "NODE_ENV=staging",
+    "deploy:prod": "NODE_ENV=production",
+
+    "node-sass": "node-sass",
+    "webdriver-manager": "webdriver-manager"
   },
   "dependencies": {
     "express": "^4.13.4"
