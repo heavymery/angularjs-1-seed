@@ -15,13 +15,16 @@ module.exports = function (grunt) {
   //
   //------------------------------------------------------------------------------
 
-  require('dotenv').load();
+  require('dotenv').config({silent: true});
 
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
 
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);
+
+  var serveStatic = require('serve-static');
+  var serveIndex = require('serve-index');
 
   //------------------------------------------------------------------------------
   //
@@ -127,15 +130,15 @@ module.exports = function (grunt) {
             var middlewares = [
               connect().use(
                 '/bower_components',
-                connect.static('./bower_components')
+                serveStatic('./bower_components')
               ),
-              connect.static('.tmp'),
-              connect.static(appConfig.app)
+              serveStatic('.tmp'),
+              serveStatic(appConfig.app)
             ];
 
             // Make directory browse-able.
             var directory = options.directory || options.base[options.base.length - 1];
-            middlewares.push(connect.directory(directory));
+            middlewares.push(serveIndex(directory));
 
             return middlewares;
           }
@@ -153,15 +156,15 @@ module.exports = function (grunt) {
             var middlewares = [
               connect().use(
                 '/bower_components',
-                connect.static('./bower_components')
+                serveStatic('./bower_components')
               ),
-              connect.static('.tmp'),
-              connect.static('test')
+              serveStatic('.tmp'),
+              serveStatic('test')
             ];
 
             // Make directory browse-able.
             var directory = options.directory || options.base[options.base.length - 1];
-            middlewares.push(connect.directory(directory));
+            middlewares.push(serveIndex(directory));
 
             return middlewares;
           }
@@ -177,12 +180,12 @@ module.exports = function (grunt) {
             }
 
             var middlewares = [
-              connect.static(appConfig.dist)
+              serveStatic(appConfig.dist)
             ];
 
             // Make directory browse-able.
             var directory = options.directory || options.base[options.base.length - 1];
-            middlewares.push(connect.directory(directory));
+            middlewares.push(serveIndex(directory));
 
             return middlewares;
           }
@@ -577,10 +580,6 @@ module.exports = function (grunt) {
       local: {
         configFile: 'test/karma.conf.js',
         singleRun: true
-      },
-      browserstack: {
-        configFile: 'test/karma-browserstack.conf.js',
-        singleRun: true
       }
     },
 
@@ -604,11 +603,6 @@ module.exports = function (grunt) {
       local: {
         options: {
           configFile: 'test/e2e/protractor.conf.js'
-        }
-      },
-      browserstack: {
-        options: {
-          configFile: 'test/e2e/protractor-browserstack.conf.js'
         }
       }
     },
@@ -697,7 +691,6 @@ module.exports = function (grunt) {
     if (target === 'dist') {
       // return grunt.task.run(['build', 'connect:dist:keepalive']);
       return grunt.task.run([
-        'configureProxies:dist',
         'connect:dist:keepalive'
       ]);
     }
@@ -706,8 +699,8 @@ module.exports = function (grunt) {
       'clean:serve',
       'wiredep',
       'concurrent:server',
+      'shell:sassCompile',
       // 'autoprefixer:server',
-      'configureProxies:livereload',
       'connect:serve',
       'shell:sassWatch',
       'watch'
@@ -724,7 +717,6 @@ module.exports = function (grunt) {
       'wiredep',
       'concurrent:test',
       'autoprefixer:server',
-      'configureProxies:test',
       'connect:test',
       'karma:local'
     ];
